@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>妍护 · GynCare — 妇科肿瘤营养与康复</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: rgba(255,255,255,0.08);
+    --accent: #c8a882;
+    --accent2: #9fb8d0;
+    --text: #f0ece6;
+    --text-muted: rgba(240,236,230,0.5);
+    --text-dim: rgba(240,236,230,0.3);
+    --gradient: linear-gradient(135deg, #c8a882 0%, #9fb8d0 100%);
+    --glow: rgba(200,168,130,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif; font-weight: 300;
+    line-height: 1.7; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 48px; display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(10,10,15,0.7); border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: 'Playfair Display', serif; font-size: 22px;
+    background: var(--gradient); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; letter-spacing: 0.05em;
+  }
+  .logo span { font-style: italic; font-weight: 300; }
+  nav ul { list-style: none; display: flex; gap: 32px; }
+  nav ul li a { font-size: 13px; letter-spacing: 0.08em; color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+  nav ul li a:hover { color: var(--accent); }
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 120px 48px 80px; position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(200,168,130,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 70% 60%, rgba(159,184,208,0.06) 0%, transparent 60%);
+  }
+  .hero-eyebrow { font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards; }
+  .hero h1 { font-family: 'Noto Serif SC', serif; font-size: clamp(42px, 6vw, 88px); font-weight: 300; line-height: 1.1; letter-spacing: -0.01em; opacity: 0; animation: fadeUp 0.8s ease 0.4s forwards; }
+  .hero h1 em { font-style: italic; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero-sub { max-width: 520px; margin: 28px auto 0; font-size: 16px; color: var(--text-muted); line-height: 1.8; opacity: 0; animation: fadeUp 0.8s ease 0.6s forwards; }
+  .hero-cta { display: flex; gap: 16px; margin-top: 48px; justify-content: center; opacity: 0; animation: fadeUp 0.8s ease 0.8s forwards; }
+  .btn-primary { padding: 14px 36px; border-radius: 100px; background: var(--gradient); color: #0a0a0f; font-size: 14px; font-weight: 500; letter-spacing: 0.05em; border: none; cursor: pointer; transition: opacity 0.3s, transform 0.3s; font-family: inherit; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-2px); }
+  .btn-ghost { padding: 14px 36px; border-radius: 100px; background: transparent; color: var(--text-muted); font-size: 14px; letter-spacing: 0.05em; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.3s, color 0.3s, transform 0.3s; font-family: inherit; }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+  .scroll-hint { position: absolute; bottom: 40px; display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-dim); font-size: 11px; letter-spacing: 0.1em; opacity: 0; animation: fadeUp 1s ease 1.2s forwards; }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+  section { padding: 120px 48px; }
+  .section-label { font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+  .section-title { font-family: 'Noto Serif SC', serif; font-size: clamp(28px, 3.5vw, 48px); font-weight: 300; line-height: 1.2; }
+  .features { background: var(--surface); }
+  .features-inner { max-width: 1100px; margin: 0 auto; }
+  .features-header { text-align: center; margin-bottom: 72px; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+  .card { background: var(--surface2); padding: 48px 36px; transition: background 0.3s; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--gradient); opacity: 0; transition: opacity 0.4s; }
+  .card:hover { background: #1e1e2c; }
+  .card:hover::before { opacity: 1; }
+  .card-icon { width: 48px; height: 48px; margin-bottom: 28px; background: var(--glow); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .card h3 { font-family: 'Noto Serif SC', serif; font-size: 18px; font-weight: 400; margin-bottom: 14px; }
+  .card p { font-size: 14px; color: var(--text-muted); line-height: 1.8; }
+  #app { max-width: 900px; margin: 0 auto; }
+  #app .section-header { text-align: center; margin-bottom: 64px; }
+  .tabs { display: flex; gap: 0; margin-bottom: 48px; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 4px; }
+  .tab-btn { flex: 1; padding: 12px 24px; border: none; background: transparent; color: var(--text-muted); font-size: 14px; letter-spacing: 0.05em; cursor: pointer; border-radius: 100px; transition: all 0.3s; font-family: 'Noto Sans SC', sans-serif; font-weight: 300; }
+  .tab-btn.active { background: var(--gradient); color: #0a0a0f; font-weight: 500; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .form-group { margin-bottom: 28px; }
+  .form-group label { display: block; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'Noto Sans SC', sans-serif; font-size: 14px; font-weight: 300; transition: border-color 0.3s, box-shadow 0.3s; outline: none; resize: vertical; }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,168,130,0.1); }
+  .form-group textarea { min-height: 140px; }
+  .form-group select option { background: var(--surface2); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .submit-btn { width: 100%; padding: 18px; border-radius: 12px; background: var(--gradient); color: #0a0a0f; font-size: 15px; font-weight: 500; letter-spacing: 0.05em; border: none; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; transition: opacity 0.3s, transform 0.3s; margin-top: 8px; }
+  .submit-btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-2px); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .result-box { margin-top: 40px; padding: 40px; display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; position: relative; overflow: hidden; }
+  .result-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient); }
+  .result-box.show { display: block; animation: fadeUp 0.5s ease; }
+  .result-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .result-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .result-content { font-size: 15px; line-height: 2; color: var(--text); white-space: pre-wrap; }
+  .result-content strong { color: var(--accent); font-weight: 500; }
+  .loading { display: none; text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+  .loading.show { display: block; }
+  .spinner { width: 32px; height: 32px; margin: 0 auto 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .disclaimer { background: var(--surface); border-top: 1px solid var(--border); padding: 40px 48px; text-align: center; font-size: 12px; color: var(--text-dim); line-height: 1.8; }
+  footer { padding: 60px 48px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  footer .logo { font-size: 18px; }
+  footer p { font-size: 12px; color: var(--text-dim); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes scrollPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; } nav ul { display: none; }
+    section { padding: 80px 24px; }
+    .cards { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; }
+    .tabs { flex-direction: column; border-radius: 16px; } .tab-btn { border-radius: 12px; }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span>妍</span>护 · GynCare</div>
+  <ul>
+    <li><a href="#features">功能</a></li>
+    <li><a href="#tool">开始评估</a></li>
+    <li><a href="#disclaimer">医疗声明</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <p class="hero-eyebrow">妇科肿瘤 · 营养 · 康复</p>
+  <h1>以科学为据<br>以<em>温柔</em>为径</h1>
+  <p class="hero-sub">为妇科肿瘤患者提供个性化分期识别、营养规划与康复建议。每一份方案，都基于您的真实情况量身制定。</p>
+  <div class="hero-cta">
+    <button class="btn-primary" onclick="document.getElementById('tool').scrollIntoView({behavior:'smooth'})">开始评估</button>
+    <button class="btn-ghost" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">了解更多</button>
+  </div>
+  <div class="scroll-hint"><div class="scroll-line"></div><span>向下探索</span></div>
+</section>
+
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="features-header">
+      <p class="section-label">核心功能</p>
+      <h2 class="section-title">三步陪伴，全程守护</h2>
+    </div>
+    <div class="cards">
+      <div class="card"><div class="card-icon">🔬</div><h3>临床分期识别</h3><p>输入病理报告、手术记录及影像结果，系统依据 FIGO 标准自动解析并呈现肿瘤分期，辅助您与医生沟通。</p></div>
+      <div class="card"><div class="card-icon">🌿</div><h3>个性化营养方案</h3><p>结合您的年龄、合并症、过敏史与治疗阶段，提供科学的每日营养目标、食物建议与补剂参考。</p></div>
+      <div class="card"><div class="card-icon">✦</div><h3>康复全程规划</h3><p>从术后恢复到放化疗期间的症状管理，再到随访期的体能重建，提供阶段性、可执行的康复指引。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="tool">
+  <div id="app">
+    <div class="section-header">
+      <p class="section-label">智能评估</p>
+      <h2 class="section-title">开始您的个性化评估</h2>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('staging')">📋 分期识别</button>
+      <button class="tab-btn" onclick="switchTab('nutrition')">🌿 营养与康复</button>
+    </div>
+
+    <div class="panel active" id="panel-staging">
+      <div class="form-group">
+        <label>肿瘤类型</label>
+        <select id="tumor-type">
+          <option value="">请选择</option>
+          <option>宫颈癌</option><option>子宫内膜癌</option><option>卵巢癌</option>
+          <option>外阴癌</option><option>阴道癌</option><option>输卵管癌</option><option>其他妇科肿瘤</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>病理报告 / 手术记录（关键描述）</label>
+        <textarea id="pathology" placeholder="例如：宫颈浸润深度、淋巴结状态、肌层侵犯比例、腹膜转移情况、CA-125数值等……"></textarea>
+      </div>
+      <div class="form-group">
+        <label>影像学检查结果</label>
+        <textarea id="imaging" placeholder="例如：MRI/CT/PET-CT 提示的病灶范围、淋巴结肿大、远处转移描述……" style="min-height:100px;"></textarea>
+      </div>
+      <button class="submit-btn" onclick="analyzeStaging()">解析临床分期</button>
+      <div class="loading" id="loading-staging"><div class="spinner"></div>正在分析，请稍候……</div>
+      <div class="result-box" id="result-staging"><div class="result-label">分期解析结果</div><div class="result-content" id="staging-output"></div></div>
+    </div>
+
+    <div class="panel" id="panel-nutrition">
+      <div class="form-row">
+        <div class="form-group"><label>年龄</label><input type="number" id="age" placeholder="岁" min="18" max="100"></div>
+        <div class="form-group"><label>体重 (kg)</label><input type="number" id="weight" placeholder="kg"></div>
+      </div>
+      <div class="form-group"><label>肿瘤类型及分期（如已知）</label><input type="text" id="tumor-info" placeholder="例如：卵巢癌 IIIC 期"></div>
+      <div class="form-group">
+        <label>目前治疗阶段</label>
+        <select id="treatment-phase">
+          <option value="">请选择</option>
+          <option>术前等待期</option><option>术后恢复早期（0-4周）</option><option>术后恢复中期（1-3个月）</option>
+          <option>化疗期间</option><option>放疗期间</option><option>靶向/免疫治疗期间</option>
+          <option>治疗结束随访期</option><option>姑息治疗阶段</option>
+        </select>
+      </div>
+      <div class="form-group"><label>合并疾病</label><input type="text" id="comorbidities" placeholder="例如：糖尿病、高血压、肾功能不全、贫血等（无则留空）"></div>
+      <div class="form-group"><label>食物 / 药物过敏史</label><input type="text" id="allergies" placeholder="例如：海鲜过敏、阿司匹林过敏等（无则留空）"></div>
+      <div class="form-group"><label>目前主要症状或困扰</label><textarea id="symptoms" placeholder="例如：恶心呕吐、食欲不振、腹泻、便秘、疲乏、口腔溃疡、体重下降等……" style="min-height:100px;"></textarea></div>
+      <button class="submit-btn" onclick="analyzeNutrition()">生成营养与康复方案</button>
+      <div class="loading" id="loading-nutrition"><div class="spinner"></div>正在为您制定个性化方案，请稍候……</div>
+      <div class="result-box" id="result-nutrition"><div class="result-label">营养与康复方案</div><div class="result-content" id="nutrition-output"></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="disclaimer" id="disclaimer">
+  ⚕️ 重要医疗声明 — 本工具基于 AI 生成，所提供的分期参考、营养建议及康复规划<strong>仅供辅助参考</strong>，不构成正式医疗诊断或治疗方案。请务必在专业医生、临床营养师的指导下做出医疗决策。如有紧急情况，请立即联系您的主治医师或前往医院就诊。
+</div>
+
+<footer>
+  <div class="logo"><span>妍</span>护 · GynCare</div>
+  <p>以关怀为本 · 以科学为翼 · 陪伴每一位勇敢的她</p>
+</footer>
+
+<script>
+  // ⚙️ 部署后，这里会自动用相对路径调用同域后端
+  // 本地测试时可改为 http://localhost:3000/api/chat
+  const API_URL = '/api/chat';
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', (tab === 'staging' && i === 0) || (tab === 'nutrition' && i === 1));
+    });
+    document.getElementById('panel-staging').classList.toggle('active', tab === 'staging');
+    document.getElementById('panel-nutrition').classList.toggle('active', tab === 'nutrition');
+  }
+
+  async function callAPI(prompt) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || '请求失败');
+    }
+    const data = await res.json();
+    return data.text;
+  }
+
+  async function analyzeStaging() {
+    const type = document.getElementById('tumor-type').value;
+    const path = document.getElementById('pathology').value.trim();
+    const img  = document.getElementById('imaging').value.trim();
+    if (!type || !path) { alert('请选择肿瘤类型并填写病理报告关键描述。'); return; }
+
+    const loading = document.getElementById('loading-staging');
+    const resultBox = document.getElementById('result-staging');
+    const output = document.getElementById('staging-output');
+    const btn = document.querySelector('#panel-staging .submit-btn');
+    btn.disabled = true; loading.classList.add('show'); resultBox.classList.remove('show');
+
+    const prompt = `你是一位妇科肿瘤专业医生顾问，请根据以下信息，依据最新 FIGO 分期标准，对该患者进行临床分期分析。
+
+肿瘤类型：${type}
+病理/手术记录关键描述：${path}
+影像学结果：${img || '未提供'}
+
+请输出：
+**一、最可能的 FIGO 分期**
+**二、分期依据**（列举关键病理/影像依据）
+**三、需要补充的信息**（如有）
+**四、简要预后参考**
+
+语言简洁专业，适合患者理解。最后注明：本分析仅供参考，以主治医生诊断为准。`;
+
+    try {
+      const text = await callAPI(prompt);
+      output.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      resultBox.classList.add('show');
+    } catch(e) {
+      output.textContent = '错误：' + e.message;
+      resultBox.classList.add('show');
+    }
+    loading.classList.remove('show'); btn.disabled = false;
+  }
+
+  async function analyzeNutrition() {
+    const age = document.getElementById('age').value;
+    const weight = document.getElementById('weight').value;
+    const tumor = document.getElementById('tumor-info').value.trim();
+    const phase = document.getElementById('treatment-phase').value;
+    const comorbidities = document.getElementById('comorbidities').value.trim();
+    const allergies = document.getElementById('allergies').value.trim();
+    const symptoms = document.getElementById('symptoms').value.trim();
+    if (!phase) { alert('请选择目前的治疗阶段。'); return; }
+
+    const loading = document.getElementById('loading-nutrition');
+    const resultBox = document.getElementById('result-nutrition');
+    const output = document.getElementById('nutrition-output');
+    const btn = document.querySelector('#panel-nutrition .submit-btn');
+    btn.disabled = true; loading.classList.add('show'); resultBox.classList.remove('show');
+
+    const prompt = `你是一位专业的妇科肿瘤临床营养师，请为以下患者制定个性化营养与康复方案。
+
+基本信息：
+- 年龄：${age || '未提供'}岁，体重：${weight || '未提供'}kg
+- 肿瘤类型及分期：${tumor || '未提供'}
+- 当前治疗阶段：${phase}
+- 合并疾病：${comorbidities || '无'}
+- 过敏史：${allergies || '无'}
+- 主要症状：${symptoms || '未提供'}
+
+请制定包含以下内容的方案：
+**一、营养目标**（每日热量、蛋白质、水分参考）
+**二、推荐食物清单**（按食物类别，注明原因）
+**三、需要避免的食物**
+**四、补剂建议**（如需要，注明注意事项）
+**五、针对当前症状的饮食调整**
+**六、康复运动建议**
+**七、心理与生活方式建议**
+
+语言温和、实用、易于执行。最后提醒以专业医生和营养师意见为准。`;
+
+    try {
+      const text = await callAPI(prompt);
+      output.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      resultBox.classList.add('show');
+    } catch(e) {
+      output.textContent = '错误：' + e.message;
+      resultBox.classList.add('show');
+    }
+    loading.classList.remove('show'); btn.disabled = false;
+  }
+</script>
+</body>
+</html>
