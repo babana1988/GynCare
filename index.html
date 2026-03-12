@@ -352,9 +352,12 @@
       resultBox.classList.add('show');
     }
     loading.classList.remove('show'); btn.disabled = false;
-  }
+}
+</script>
+<script>
 /* ✅ 资料清单：按肿瘤类型给用户提示（前端本地渲染，不影响后端） */
-(function () {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
   const hints = {
     "宫颈癌": `
       <ul style="margin:0; padding-left:18px;">
@@ -375,7 +378,7 @@
         <li>LVSI：有/无；切缘情况</li>
         <li>附件/浆膜/阴道/宫旁等受累描述（如有请原文粘贴）</li>
         <li>淋巴结：取×枚/阳性×枚</li>
-        <li>分子/免疫（如有）：“MMR（MLH1/MSH2/MSH6/PMS2）/p53/POLE/ER/PR”等可原文粘贴</li>
+        <li>分子/免疫（如有）：MMR/p53/POLE/ER/PR 等可原文粘贴</li>
         <li><b>影像</b>：复制“结论/印象”整段 + 淋巴结 + 远处转移</li>
       </ul>
     `,
@@ -393,7 +396,7 @@
     `,
     "输卵管癌": `
       <ul style="margin:0; padding-left:18px;">
-        <li>同“卵巢癌”重点：手术范围、是否R0、腹水/洗液细胞学、网膜/腹膜取材、淋巴结</li>
+        <li>同“卵巢癌”重点：手术范围、是否R0、洗液细胞学、网膜/腹膜取材、淋巴结</li>
         <li>如有 CA-125、BRCA/HRD 请补充（原文粘贴即可）</li>
         <li><b>影像</b>：复制“结论/印象”整段 + 淋巴结 + 腹膜/网膜 + 远处转移线索</li>
       </ul>
@@ -417,9 +420,8 @@
     `,
     "其他妇科肿瘤": `
       <ul style="margin:0; padding-left:18px;">
-        <li><b>优先复制三段</b>：①病理报告“诊断/结论”段 ②手术记录“术式+范围+术中所见” ③影像报告“结论/印象”段</li>
-        <li>如果报告里有：肿瘤大小、浸润范围、切缘、LVSI、淋巴结、腹水/洗液细胞学，请一并粘贴</li>
-        <li>不确定的免疫组化/分子检测可直接原文粘贴（我们会用白话解释）</li>
+        <li><b>优先复制三段</b>：①病理“诊断/结论” ②手术记录“术式+范围+术中所见” ③影像“结论/印象”</li>
+        <li>如有：大小、浸润范围、切缘、LVSI、淋巴结、洗液细胞学，请一并粘贴</li>
       </ul>
     `
   };
@@ -427,6 +429,7 @@
   const select = document.getElementById("tumor-type");
   const box = document.getElementById("info-hints");
   const content = document.getElementById("info-hints-content");
+  if (!select || !box || !content) return;
 
   function renderHints() {
     const type = (select.value || "").trim();
@@ -439,12 +442,9 @@
     content.innerHTML = hints[type] || hints["其他妇科肿瘤"];
   }
 
-  if (select) {
-    select.addEventListener("change", renderHints);
-    // 页面刷新后如果有默认值，也自动显示
-    renderHints();
-  }
-})();
+  select.addEventListener("change", renderHints);
+  renderHints();
+});
 </script>
 </body>
 </html>
