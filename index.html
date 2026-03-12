@@ -123,6 +123,15 @@
     .tabs { flex-direction: column; border-radius: 16px; } .tab-btn { border-radius: 12px; }
     footer { flex-direction: column; gap: 16px; text-align: center; }
   }
+.hint-card{
+  background: rgba(17,17,24,0.55);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 14px 16px;
+  backdrop-filter: blur(8px);
+}
+.hint-card b{ color: rgba(240,236,230,0.95); }
+.hint-card ul li{ margin: 6px 0; }
 </style>
 </head>
 <body>
@@ -180,7 +189,11 @@
           <option value="">请选择</option>
           <option>宫颈癌</option><option>子宫内膜癌</option><option>卵巢癌</option>
           <option>外阴癌</option><option>阴道癌</option><option>输卵管癌</option><option>其他妇科肿瘤</option>
-        </select>
+        </select><!-- 📌 资料清单：随肿瘤类型动态变化 -->
+<div id="info-hints" class="hint-card" style="display:none; margin-top:12px;">
+  <div style="font-weight:600; margin-bottom:8px;">建议复制这些关键资料（不确定可写“未见/未做/不详”）</div>
+  <div id="info-hints-content" style="line-height:1.7; color: rgba(240,236,230,0.85);"></div>
+</div>
       </div>
       <div class="form-group">
         <label>病理报告 / 手术记录（关键描述）</label>
@@ -340,6 +353,99 @@
     }
     loading.classList.remove('show'); btn.disabled = false;
   }
+<script>
+/* ✅ 资料清单：按肿瘤类型给用户提示（前端本地渲染，不影响后端） */
+(function () {
+  const hints = {
+    "宫颈癌": `
+      <ul style="margin:0; padding-left:18px;">
+        <li><b>病理/手术（复制“结论段”即可）</b>：病理诊断（类型/亚型）、分化/分级、肿瘤大小</li>
+        <li>间质浸润深度（mm）/水平扩展（如有）</li>
+        <li>宫旁受累、阴道受累（有/无/不详）</li>
+        <li>切缘（阴道切缘/宫颈切缘/宫旁切缘）是否阴性</li>
+        <li>LVSI（脉管侵犯）：有/无</li>
+        <li>淋巴结：取了哪些部位？取×枚/阳性×枚（如有“微转移/ITC”请原文粘贴）</li>
+        <li><b>影像（最重要）</b>：请复制影像报告最后的<b>“结论/印象”</b>整段 + 淋巴结部位/大小 + 远处转移线索</li>
+      </ul>
+    `,
+    "子宫内膜癌": `
+      <ul style="margin:0; padding-left:18px;">
+        <li><b>病理/手术</b>：病理诊断（类型/亚型）、分级（G1–G3）、肿瘤大小</li>
+        <li>肌层浸润：<b>&lt;50% / ≥50%</b>（或浸润深度）</li>
+        <li>宫颈间质受累：有/无</li>
+        <li>LVSI：有/无；切缘情况</li>
+        <li>附件/浆膜/阴道/宫旁等受累描述（如有请原文粘贴）</li>
+        <li>淋巴结：取×枚/阳性×枚</li>
+        <li>分子/免疫（如有）：“MMR（MLH1/MSH2/MSH6/PMS2）/p53/POLE/ER/PR”等可原文粘贴</li>
+        <li><b>影像</b>：复制“结论/印象”整段 + 淋巴结 + 远处转移</li>
+      </ul>
+    `,
+    "卵巢癌": `
+      <ul style="margin:0; padding-left:18px;">
+        <li><b>手术方式</b>：分期/减瘤？是否达到<b>无肉眼残留（R0）</b></li>
+        <li>是否破裂：术前/术中破裂（如报告提及请写明）</li>
+        <li>腹水/腹腔洗液细胞学：阴性/阳性/未做</li>
+        <li>网膜/腹膜/膈肌/肠系膜等取材结果（做了就粘贴结论）</li>
+        <li>淋巴结：取×枚/阳性×枚（盆腔/腹主动脉旁）</li>
+        <li>CA-125（如有）：诊断前/术后近期数值</li>
+        <li>基因/分子（如有）：BRCA/HRD（原文粘贴）</li>
+        <li><b>影像</b>：复制“结论/印象”整段 + 腹膜/网膜 + 淋巴结 + 远处转移线索</li>
+      </ul>
+    `,
+    "输卵管癌": `
+      <ul style="margin:0; padding-left:18px;">
+        <li>同“卵巢癌”重点：手术范围、是否R0、腹水/洗液细胞学、网膜/腹膜取材、淋巴结</li>
+        <li>如有 CA-125、BRCA/HRD 请补充（原文粘贴即可）</li>
+        <li><b>影像</b>：复制“结论/印象”整段 + 淋巴结 + 腹膜/网膜 + 远处转移线索</li>
+      </ul>
+    `,
+    "外阴癌": `
+      <ul style="margin:0; padding-left:18px;">
+        <li><b>病理</b>：肿瘤最大径（cm）</li>
+        <li>浸润深度（mm）</li>
+        <li>切缘：是否阴性 + 最近切缘距离（mm，如有）</li>
+        <li>腹股沟淋巴结：取×枚/阳性×枚（如做了）</li>
+        <li><b>影像</b>：复制“结论/印象”整段（尤其腹股沟/盆腔淋巴结）</li>
+      </ul>
+    `,
+    "阴道癌": `
+      <ul style="margin:0; padding-left:18px;">
+        <li><b>病理</b>：肿瘤最大径、浸润范围（如有）</li>
+        <li>与宫颈/外阴的关系、切缘情况（如术后）</li>
+        <li>淋巴结评估：腹股沟/盆腔（如有）</li>
+        <li><b>影像</b>：复制“结论/印象”整段 + 淋巴结 + 远处转移线索</li>
+      </ul>
+    `,
+    "其他妇科肿瘤": `
+      <ul style="margin:0; padding-left:18px;">
+        <li><b>优先复制三段</b>：①病理报告“诊断/结论”段 ②手术记录“术式+范围+术中所见” ③影像报告“结论/印象”段</li>
+        <li>如果报告里有：肿瘤大小、浸润范围、切缘、LVSI、淋巴结、腹水/洗液细胞学，请一并粘贴</li>
+        <li>不确定的免疫组化/分子检测可直接原文粘贴（我们会用白话解释）</li>
+      </ul>
+    `
+  };
+
+  const select = document.getElementById("tumor-type");
+  const box = document.getElementById("info-hints");
+  const content = document.getElementById("info-hints-content");
+
+  function renderHints() {
+    const type = (select.value || "").trim();
+    if (!type) {
+      box.style.display = "none";
+      content.innerHTML = "";
+      return;
+    }
+    box.style.display = "block";
+    content.innerHTML = hints[type] || hints["其他妇科肿瘤"];
+  }
+
+  if (select) {
+    select.addEventListener("change", renderHints);
+    // 页面刷新后如果有默认值，也自动显示
+    renderHints();
+  }
+})();
 </script>
 </body>
 </html>
