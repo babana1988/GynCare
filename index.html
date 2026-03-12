@@ -155,7 +155,7 @@
       <h2 class="section-title">三步陪伴，全程守护</h2>
     </div>
     <div class="cards">
-      <div class="card"><div class="card-icon">🔬</div><h3>临床分期识别</h3><p>输入病理报告、手术记录及影像结果，系统依据 FIGO 标准自动解析并呈现肿瘤分期，辅助您与医生沟通。</p></div>
+      <div class="card"><div class="card-icon">🔬</div><h3>报告要点提取与分期术语解读</h3><p>输入病理/手术/影像报告中的关键描述，系统将结构化提取分期相关要点，解释常见术语，并生成“与医生沟通的提问清单”。</p></div>
       <div class="card"><div class="card-icon">🌿</div><h3>个性化营养方案</h3><p>结合您的年龄、合并症、过敏史与治疗阶段，提供科学的每日营养目标、食物建议与补剂参考。</p></div>
       <div class="card"><div class="card-icon">✦</div><h3>康复全程规划</h3><p>从术后恢复到放化疗期间的症状管理，再到随访期的体能重建，提供阶段性、可执行的康复指引。</p></div>
     </div>
@@ -190,9 +190,9 @@
         <label>影像学检查结果</label>
         <textarea id="imaging" placeholder="例如：MRI/CT/PET-CT 提示的病灶范围、淋巴结肿大、远处转移描述……" style="min-height:100px;"></textarea>
       </div>
-      <button class="submit-btn" onclick="analyzeStaging()">解析临床分期</button>
+      <button class="submit-btn" onclick="analyzeStaging()">提取要点 & 生成沟通清单</button>
       <div class="loading" id="loading-staging"><div class="spinner"></div>正在分析，请稍候……</div>
-      <div class="result-box" id="result-staging"><div class="result-label">分期解析结果</div><div class="result-content" id="staging-output"></div></div>
+      <div class="result-box" id="result-staging"><div class="result-label">要点提取结果（供沟通参考）</div><div class="result-content" id="staging-output"></div></div>
     </div>
 
     <div class="panel" id="panel-nutrition">
