@@ -82,7 +82,8 @@
   .card-icon { width: 48px; height: 48px; margin-bottom: 28px; background: var(--glow); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
   .card h3 { font-family: 'Noto Serif SC', serif; font-size: 18px; font-weight: 400; margin-bottom: 14px; }
   .card p { font-size: 14px; color: var(--text-muted); line-height: 1.8; }
-  #app { max-width: 900px; margin: 0 auto; }
+  .card-output { display: block; margin-top: 12px; color: var(--text-dim); font-size: 12px; }
+  #app, #app-tracker { max-width: 900px; margin: 0 auto; }
   #app .section-header { text-align: center; margin-bottom: 64px; }
   .tabs { display: flex; gap: 0; margin-bottom: 48px; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 4px; }
   .tab-btn { flex: 1; padding: 12px 24px; border: none; background: transparent; color: var(--text-muted); font-size: 14px; letter-spacing: 0.05em; cursor: pointer; border-radius: 100px; transition: all 0.3s; font-family: 'Noto Sans SC', sans-serif; font-weight: 300; }
@@ -106,6 +107,11 @@
   .result-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
   .result-content { font-size: 15px; line-height: 2; color: var(--text); white-space: pre-wrap; }
   .result-content strong { color: var(--accent); font-weight: 500; }
+  .result-section { margin-bottom: 24px; }
+  .result-section h4 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .result-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .result-actions .btn-ghost, .result-actions .btn-primary { padding: 10px 18px; font-size: 13px; }
+  .urgent-warning { margin-top: 18px; font-size: 12px; color: #ffb8b8; }
   .loading { display: none; text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
   .loading.show { display: block; }
   .spinner { width: 32px; height: 32px; margin: 0 auto 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -132,6 +138,20 @@
 }
 .hint-card b{ color: rgba(240,236,230,0.95); }
 .hint-card ul li{ margin: 6px 0; }
+.trust-badges{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.trust-badges span{font-size:12px;border:1px solid var(--border);padding:8px 12px;border-radius:999px;color:var(--text-muted);background:rgba(17,17,24,.65)}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{border:1px solid var(--border);padding:8px 12px;border-radius:999px;color:var(--text-muted);font-size:13px}
+.chip-btn{border:1px solid var(--border);padding:8px 12px;border-radius:999px;background:transparent;color:var(--text-muted);cursor:pointer}
+.chip-btn.active{background:var(--gradient);color:#0a0a0f;border-color:transparent}
+.field-note{font-size:12px;color:var(--text-dim);margin-top:-8px;margin-bottom:10px}
+.consent-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:200}
+.consent-modal.show{display:flex}
+.consent-card{max-width:560px;background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:24px}
+.consent-card h3{margin-bottom:10px}
+.consent-card p{color:var(--text-muted);margin-bottom:12px}
+.consent-card label{display:block;margin-bottom:8px;font-size:14px;color:var(--text-muted)}
+.checklist .check-item{display:flex;gap:8px;align-items:flex-start}
 </style>
 </head>
 <body>
@@ -140,7 +160,8 @@
   <div class="logo"><span>妍</span>护 · GynCare</div>
   <ul>
     <li><a href="#features">功能</a></li>
-    <li><a href="#tool">开始评估</a></li>
+    <li><a href="#tool">开始整理</a></li>
+    <li><a href="#tracker">症状打卡</a></li>
     <li><a href="#disclaimer">医疗声明</a></li>
   </ul>
 </nav>
@@ -148,11 +169,17 @@
 <section class="hero">
   <div class="hero-bg"></div>
   <p class="hero-eyebrow">妇科肿瘤 · 营养 · 康复</p>
-  <h1>以科学为据<br>以<em>温柔</em>为径</h1>
-  <p class="hero-sub">为妇科肿瘤患者提供报告要点提取与术语解读、营养规划与康复建议。每一份内容都旨在帮助您更高效与医生沟通，并获得可执行的生活方式建议。</p>
+  <h1>看懂报告<br>准备<em>就医</em>，安心康复</h1>
+  <p class="hero-sub">面向妇科肿瘤患者与家属的 AI 教育与沟通辅助工具，帮助您更好地整理资料、准备门诊提问与执行康复计划（非诊断）。</p>
   <div class="hero-cta">
-    <button class="btn-primary" onclick="document.getElementById('tool').scrollIntoView({behavior:'smooth'})">开始评估</button>
-    <button class="btn-ghost" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">了解更多</button>
+    <button class="btn-primary" id="btn-start-report" onclick="document.getElementById('tool').scrollIntoView({behavior:'smooth'})">开始整理报告</button>
+    <button class="btn-ghost" id="btn-view-sample">查看示例报告</button>
+    <button class="btn-ghost" id="btn-go-tracker" onclick="document.getElementById('tracker').scrollIntoView({behavior:'smooth'})">我先做症状打卡</button>
+  </div>
+  <div class="trust-badges">
+    <span>仅做教育与沟通辅助</span>
+    <span>可导出门诊沟通清单</span>
+    <span>支持随时删除个人记录</span>
   </div>
   <div class="scroll-hint"><div class="scroll-line"></div><span>向下探索</span></div>
 </section>
@@ -164,9 +191,9 @@
       <h2 class="section-title">三步陪伴，全程守护</h2>
     </div>
     <div class="cards">
-      <div class="card"><div class="card-icon">🔬</div><h3>报告要点提取与分期术语解读</h3><p>输入病理/手术/影像报告中的关键描述，系统将结构化提取分期相关要点，解释常见术语，并生成“与医生沟通的提问清单”。</p></div>
-      <div class="card"><div class="card-icon">🌿</div><h3>个性化营养方案</h3><p>结合您的年龄、合并症、过敏史与治疗阶段，提供科学的每日营养目标、食物建议与补剂参考。</p></div>
-      <div class="card"><div class="card-icon">✦</div><h3>康复全程规划</h3><p>从术后恢复到放化疗期间的症状管理，再到随访期的体能重建，提供阶段性、可执行的康复指引。</p></div>
+      <div class="card"><div class="card-icon">🔬</div><h3>报告结构化整理</h3><p>提取报告核心信息、未知项与风险关键词，帮助您快速掌握重点。</p><small class="card-output">输出：结构化摘要 + 缺失信息提示</small></div>
+      <div class="card"><div class="card-icon">💬</div><h3>门诊沟通清单</h3><p>根据您填写的信息自动生成就诊问题清单，减少漏问和紧张。</p><small class="card-output">输出：10 条提问 + 就诊准备清单</small></div>
+      <div class="card"><div class="card-icon">📈</div><h3>症状与恢复跟踪</h3><p>每日记录症状与状态，形成一周趋势，便于复诊时与医生沟通。</p><small class="card-output">输出：打卡记录 + 周趋势总结</small></div>
     </div>
   </div>
 </section>
@@ -175,11 +202,11 @@
   <div id="app">
     <div class="section-header">
       <p class="section-label">智能评估</p>
-      <h2 class="section-title">开始您的个性化评估</h2>
+      <h2 class="section-title">开始您的报告整理与康复支持</h2>
     </div>
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('staging')">📋 分期识别</button>
-      <button class="tab-btn" onclick="switchTab('nutrition')">🌿 营养与康复</button>
+      <button class="tab-btn active" onclick="switchTab('staging')">📋 报告整理</button>
+      <button class="tab-btn" onclick="switchTab('nutrition')">🌿 康复支持</button>
     </div>
 
     <div class="panel active" id="panel-staging">
@@ -200,12 +227,42 @@
         <textarea id="pathology" placeholder="例如：宫颈浸润深度、淋巴结状态、肌层侵犯比例、腹膜转移情况、CA-125数值等……"></textarea>
       </div>
       <div class="form-group">
+        <label>本次就诊目标</label>
+        <select id="visit-goal">
+          <option value="">请选择</option>
+          <option>复诊沟通</option>
+          <option>治疗前准备</option>
+          <option>术后复查</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label>影像学检查结果</label>
         <textarea id="imaging" placeholder="例如：MRI/CT/PET-CT 提示的病灶范围、淋巴结肿大、远处转移描述……" style="min-height:100px;"></textarea>
       </div>
-      <button class="submit-btn" onclick="analyzeStaging()">提取要点 & 生成沟通清单</button>
+      <div class="form-group"><label>我最担心的问题（可选）</label><textarea id="top-concerns" placeholder="例如：是否需要补做检查？当前结果对治疗方案有什么影响？" style="min-height:90px;"></textarea></div>
+      <div class="form-group">
+        <label>是否首次使用</label>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="first-time" value="是" checked> 是</label>
+          <label class="chip"><input type="radio" name="first-time" value="否"> 否</label>
+        </div>
+      </div>
+      <p class="field-note">请勿输入身份证号、手机号、住址等敏感身份信息。</p>
+      <button class="submit-btn consent-required" onclick="analyzeStaging()">生成结构化摘要与门诊清单</button>
       <div class="loading" id="loading-staging"><div class="spinner"></div>正在分析，请稍候……</div>
-      <div class="result-box" id="result-staging"><div class="result-label">要点提取结果（供沟通参考）</div><div class="result-content" id="staging-output"></div></div>
+      <div class="result-box" id="result-staging">
+        <div class="result-label">报告整理结果（供沟通参考）</div>
+        <div class="result-section"><h4>一、关键信息卡片</h4><div class="result-content" id="summary-structured"></div></div>
+        <div class="result-section"><h4>二、缺失信息清单</h4><div class="result-content" id="summary-missing"></div></div>
+        <div class="result-section"><h4>三、门诊提问清单</h4><div class="result-content checklist" id="summary-questions"></div></div>
+        <div class="result-section"><h4>四、72小时行动建议</h4><div class="result-content" id="summary-next-steps"></div></div>
+        <div class="result-actions">
+          <button class="btn-ghost" id="btn-copy-summary" type="button">复制结构化摘要</button>
+          <button class="btn-ghost" id="btn-export-pdf" type="button">导出PDF</button>
+          <button class="btn-ghost" id="btn-save-record" type="button">保存到我的记录</button>
+        </div>
+        <p class="urgent-warning">若出现持续高热、剧烈腹痛、明显出血、呼吸困难等情况，请立即线下就医。</p>
+      </div>
     </div>
 
     <div class="panel" id="panel-nutrition">
@@ -225,13 +282,76 @@
       </div>
       <div class="form-group"><label>合并疾病</label><input type="text" id="comorbidities" placeholder="例如：糖尿病、高血压、肾功能不全、贫血等（无则留空）"></div>
       <div class="form-group"><label>食物 / 药物过敏史</label><input type="text" id="allergies" placeholder="例如：海鲜过敏、阿司匹林过敏等（无则留空）"></div>
+      <div class="form-group">
+        <label>快速选择今日症状（可多选）</label>
+        <div class="chips" id="symptom-chips">
+          <button type="button" class="chip-btn" data-symptom="食欲差">食欲差</button>
+          <button type="button" class="chip-btn" data-symptom="恶心/呕吐">恶心/呕吐</button>
+          <button type="button" class="chip-btn" data-symptom="腹泻">腹泻</button>
+          <button type="button" class="chip-btn" data-symptom="便秘">便秘</button>
+          <button type="button" class="chip-btn" data-symptom="睡眠差">睡眠差</button>
+          <button type="button" class="chip-btn" data-symptom="疲劳">疲劳</button>
+        </div>
+      </div>
       <div class="form-group"><label>目前主要症状或困扰</label><textarea id="symptoms" placeholder="例如：恶心呕吐、食欲不振、腹泻、便秘、疲乏、口腔溃疡、体重下降等……" style="min-height:100px;"></textarea></div>
-      <button class="submit-btn" onclick="analyzeNutrition()">生成营养与康复方案</button>
+      <p class="field-note">请勿输入身份证号、手机号、住址等敏感身份信息。</p>
+      <button class="submit-btn consent-required" onclick="analyzeNutrition()">生成今日建议与7天计划</button>
       <div class="loading" id="loading-nutrition"><div class="spinner"></div>正在为您制定个性化方案，请稍候……</div>
-      <div class="result-box" id="result-nutrition"><div class="result-label">营养与康复方案</div><div class="result-content" id="nutrition-output"></div></div>
+      <div class="result-box" id="result-nutrition">
+        <div class="result-label">康复支持方案</div>
+        <div class="result-section"><h4>今日建议</h4><div class="result-content" id="nutrition-today"></div></div>
+        <div class="result-section"><h4>本周计划</h4><div class="result-content" id="nutrition-week"></div></div>
+        <div class="result-section"><h4>复诊前准备</h4><div class="result-content" id="nutrition-followup"></div></div>
+        <div class="result-actions">
+          <button class="btn-ghost" type="button" onclick="saveRecord('nutrition')">保存方案</button>
+        </div>
+        <p class="urgent-warning">本结果为AI辅助建议，不能替代医生面诊与处方。</p>
+      </div>
     </div>
   </div>
 </section>
+
+<section id="tracker">
+  <div id="app-tracker">
+    <div class="section-header">
+      <p class="section-label">症状打卡</p>
+      <h2 class="section-title">每天1分钟，追踪恢复趋势</h2>
+    </div>
+    <div class="panel active">
+      <div class="form-row">
+        <div class="form-group"><label>日期</label><input type="date" id="track-date"></div>
+        <div class="form-group"><label>疼痛评分（0-10）</label><input type="number" id="track-pain" min="0" max="10" value="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>食欲（1-5）</label><select id="track-appetite"><option value="1">1 很差</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5 很好</option></select></div>
+        <div class="form-group"><label>睡眠（1-5）</label><select id="track-sleep"><option value="1">1 很差</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5 很好</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>体重（kg，可选）</label><input type="number" id="track-weight" step="0.1"></div>
+        <div class="form-group"><label>备注（可选）</label><input type="text" id="track-note" placeholder="今天最明显的不适或改善"></div>
+      </div>
+      <div class="result-actions">
+        <button class="btn-primary" type="button" onclick="saveTrackerEntry()">保存今日打卡</button>
+        <button class="btn-ghost" type="button" onclick="renderTrackerSummary()">查看7天趋势</button>
+        <button class="btn-ghost" type="button" onclick="generateWeeklySummary()">生成周总结</button>
+      </div>
+      <div class="result-box" id="result-tracker">
+        <div class="result-label">近7天趋势</div>
+        <div class="result-content" id="tracker-output">暂无数据，先保存一条打卡记录。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="consent-modal" id="consent-modal" aria-hidden="true">
+  <div class="consent-card">
+    <h3>使用前确认</h3>
+    <p>本工具仅用于健康教育与就医沟通准备，不提供诊断、处方与急诊建议。</p>
+    <label><input type="checkbox" id="consent-terms"> 我已阅读并同意《用户协议》《隐私政策》</label>
+    <label><input type="checkbox" id="consent-risk"> 我理解 AI 可能出错，紧急情况将立即线下就医</label>
+    <button class="btn-primary" id="consent-confirm" type="button">同意并继续</button>
+  </div>
+</div>
 
 <div class="disclaimer" id="disclaimer">
   ⚕️ 重要医疗声明 — 本工具基于 AI 生成，所提供的报告要点解读、术语解释、沟通清单、营养建议及康复规划仅供健康科普与沟通辅助参考，不构成正式医疗诊断或治疗方案。请务必在专业医生、临床营养师的指导下做出医疗决策。如有紧急情况，请立即联系您的主治医师或前往医院就诊。
@@ -243,87 +363,122 @@
 </footer>
 
 <script>
-  // ⚙️ 部署后，这里会自动用相对路径调用同域后端
-  // 本地测试时可改为 http://localhost:3000/api/chat
-  const API_URL = '/api/chat';
+// ⚙️ 部署后，这里会自动用相对路径调用同域后端
+const API_URL = '/api/chat';
+const CONSENT_KEY = 'gyncare_consent_v1';
+const RECORD_KEY = 'gyncare_records_v1';
+const TRACKER_KEY = 'gyncare_tracker_v1';
 
-  function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach((b, i) => {
-      b.classList.toggle('active', (tab === 'staging' && i === 0) || (tab === 'nutrition' && i === 1));
-    });
-    document.getElementById('panel-staging').classList.toggle('active', tab === 'staging');
-    document.getElementById('panel-nutrition').classList.toggle('active', tab === 'nutrition');
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (tab === 'staging' && i === 0) || (tab === 'nutrition' && i === 1));
+  });
+  document.getElementById('panel-staging').classList.toggle('active', tab === 'staging');
+  document.getElementById('panel-nutrition').classList.toggle('active', tab === 'nutrition');
+}
+
+async function callAPI(prompt, mode) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, mode, consent_version: 'v1.0' })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || '请求失败');
   }
+  return res.json();
+}
 
-  async function callAPI(prompt) {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || '请求失败');
-    }
-    const data = await res.json();
-    return data.text;
-  }
+function parseSections(text) {
+  const sections = { a: '', b: '', c: '', d: '' };
+  const lines = text.split('\n');
+  let current = 'a';
+  lines.forEach((line) => {
+    if (/二[、.]/.test(line)) current = 'b';
+    if (/三[、.]/.test(line)) current = 'c';
+    if (/四[、.]/.test(line)) current = 'd';
+    sections[current] += line + '\n';
+  });
+  return sections;
+}
 
-  async function analyzeStaging() {
-    const type = document.getElementById('tumor-type').value;
-    const path = document.getElementById('pathology').value.trim();
-    const img  = document.getElementById('imaging').value.trim();
-    if (!type || !path) { alert('请选择肿瘤类型并填写病理报告关键描述。'); return; }
+function toChecklistHTML(text) {
+  return text.split('\n').filter(Boolean).map((line) => {
+    const plain = line.replace(/^[-*]\s*/, '').trim();
+    return `<label class="check-item"><input type="checkbox"> <span>${plain}</span></label>`;
+  }).join('');
+}
 
-    const loading = document.getElementById('loading-staging');
-    const resultBox = document.getElementById('result-staging');
-    const output = document.getElementById('staging-output');
-    const btn = document.querySelector('#panel-staging .submit-btn');
-    btn.disabled = true; loading.classList.add('show'); resultBox.classList.remove('show');
+function formatText(text) {
+  return (text || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+}
 
-    const prompt = `你是一位妇科肿瘤专业医生顾问，请根据以下信息，依据最新 FIGO 分期标准，对该患者进行临床分期分析。
+async function analyzeStaging() {
+  const type = document.getElementById('tumor-type').value;
+  const path = document.getElementById('pathology').value.trim();
+  const img  = document.getElementById('imaging').value.trim();
+  const goal = document.getElementById('visit-goal').value || '未提供';
+  const concerns = document.getElementById('top-concerns').value.trim() || '未提供';
+  const firstTime = document.querySelector('input[name="first-time"]:checked')?.value || '是';
+  if (!type || !path) { alert('请选择肿瘤类型并填写病理报告关键描述。'); return; }
 
+  const loading = document.getElementById('loading-staging');
+  const resultBox = document.getElementById('result-staging');
+  const btn = document.querySelector('#panel-staging .submit-btn');
+  btn.disabled = true; loading.classList.add('show'); resultBox.classList.remove('show');
+
+  const prompt = `你是妇科肿瘤健康教育助手，请做“报告整理与门诊沟通辅助”（非诊断）。
 肿瘤类型：${type}
-病理/手术记录关键描述：${path}
+病理/手术关键描述：${path}
 影像学结果：${img || '未提供'}
+就诊目标：${goal}
+是否首次使用：${firstTime}
+用户最担心：${concerns}
 
-请输出：
-**一、最可能的 FIGO 分期**
-**二、分期依据**（列举关键病理/影像依据）
-**三、需要补充的信息**（如有）
-**四、简要预后参考**
+请严格输出四部分：
+一、关键信息卡片（提炼事实，不下诊断）
+二、缺失信息清单（需要补充的报告信息）
+三、门诊提问清单（10条以内、可执行）
+四、72小时行动建议（资料准备、沟通准备、生活管理）
+最后补一句：本内容仅用于健康教育与就医沟通准备。`;
 
-语言简洁专业，适合患者理解。最后注明：本分析仅供参考，以主治医生诊断为准。`;
-
-    try {
-      const text = await callAPI(prompt);
-      output.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      resultBox.classList.add('show');
-    } catch(e) {
-      output.textContent = '错误：' + e.message;
-      resultBox.classList.add('show');
-    }
-    loading.classList.remove('show'); btn.disabled = false;
+  try {
+    const data = await callAPI(prompt, 'report_summary');
+    const sections = parseSections(data.text || '');
+    document.getElementById('summary-structured').innerHTML = formatText(sections.a);
+    document.getElementById('summary-missing').innerHTML = formatText(sections.b);
+    document.getElementById('summary-questions').innerHTML = toChecklistHTML(sections.c || '暂无');
+    document.getElementById('summary-next-steps').innerHTML = formatText(sections.d);
+    resultBox.classList.add('show');
+    saveRecord('staging', {
+      type, goal, concerns, firstTime,
+      output: { ...sections },
+      generated_at: data.generated_at, trace_id: data.trace_id
+    });
+  } catch(e) {
+    document.getElementById('summary-structured').textContent = '错误：' + e.message;
+    resultBox.classList.add('show');
   }
+  loading.classList.remove('show'); btn.disabled = false;
+}
 
-  async function analyzeNutrition() {
-    const age = document.getElementById('age').value;
-    const weight = document.getElementById('weight').value;
-    const tumor = document.getElementById('tumor-info').value.trim();
-    const phase = document.getElementById('treatment-phase').value;
-    const comorbidities = document.getElementById('comorbidities').value.trim();
-    const allergies = document.getElementById('allergies').value.trim();
-    const symptoms = document.getElementById('symptoms').value.trim();
-    if (!phase) { alert('请选择目前的治疗阶段。'); return; }
+async function analyzeNutrition() {
+  const age = document.getElementById('age').value;
+  const weight = document.getElementById('weight').value;
+  const tumor = document.getElementById('tumor-info').value.trim();
+  const phase = document.getElementById('treatment-phase').value;
+  const comorbidities = document.getElementById('comorbidities').value.trim();
+  const allergies = document.getElementById('allergies').value.trim();
+  const symptoms = document.getElementById('symptoms').value.trim();
+  if (!phase) { alert('请选择目前的治疗阶段。'); return; }
 
-    const loading = document.getElementById('loading-nutrition');
-    const resultBox = document.getElementById('result-nutrition');
-    const output = document.getElementById('nutrition-output');
-    const btn = document.querySelector('#panel-nutrition .submit-btn');
-    btn.disabled = true; loading.classList.add('show'); resultBox.classList.remove('show');
+  const loading = document.getElementById('loading-nutrition');
+  const resultBox = document.getElementById('result-nutrition');
+  const btn = document.querySelector('#panel-nutrition .submit-btn');
+  btn.disabled = true; loading.classList.add('show'); resultBox.classList.remove('show');
 
-    const prompt = `你是一位专业的妇科肿瘤临床营养师，请为以下患者制定个性化营养与康复方案。
-
+  const prompt = `你是妇科肿瘤康复支持助手，请提供教育与生活方式建议（非诊断）。
 基本信息：
 - 年龄：${age || '未提供'}岁，体重：${weight || '未提供'}kg
 - 肿瘤类型及分期：${tumor || '未提供'}
@@ -332,27 +487,144 @@
 - 过敏史：${allergies || '无'}
 - 主要症状：${symptoms || '未提供'}
 
-请制定包含以下内容的方案：
-**一、营养目标**（每日热量、蛋白质、水分参考）
-**二、推荐食物清单**（按食物类别，注明原因）
-**三、需要避免的食物**
-**四、补剂建议**（如需要，注明注意事项）
-**五、针对当前症状的饮食调整**
-**六、康复运动建议**
-**七、心理与生活方式建议**
+请按以下三段输出：
+一、今日建议（今天可执行）
+二、本周计划（7天）
+三、复诊前准备（要记录和携带的信息）
+最后补一句：建议以医生和营养师意见为准。`;
 
-语言温和、实用、易于执行。最后提醒以专业医生和营养师意见为准。`;
-
-    try {
-      const text = await callAPI(prompt);
-      output.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      resultBox.classList.add('show');
-    } catch(e) {
-      output.textContent = '错误：' + e.message;
-      resultBox.classList.add('show');
-    }
-    loading.classList.remove('show'); btn.disabled = false;
+  try {
+    const data = await callAPI(prompt, 'rehab_plan');
+    const sections = parseSections(data.text || '');
+    document.getElementById('nutrition-today').innerHTML = formatText(sections.a);
+    document.getElementById('nutrition-week').innerHTML = formatText(sections.b);
+    document.getElementById('nutrition-followup').innerHTML = formatText(sections.c + sections.d);
+    resultBox.classList.add('show');
+    saveRecord('nutrition', { phase, symptoms, output: sections, generated_at: data.generated_at, trace_id: data.trace_id });
+  } catch(e) {
+    document.getElementById('nutrition-today').textContent = '错误：' + e.message;
+    resultBox.classList.add('show');
+  }
+  loading.classList.remove('show'); btn.disabled = false;
 }
+
+function saveRecord(type, payload) {
+  const list = JSON.parse(localStorage.getItem(RECORD_KEY) || '[]');
+  list.unshift({ id: crypto.randomUUID(), type, payload, created_at: new Date().toISOString() });
+  localStorage.setItem(RECORD_KEY, JSON.stringify(list.slice(0, 100)));
+}
+
+function copySummary() {
+  const text = [
+    document.getElementById('summary-structured').innerText,
+    document.getElementById('summary-missing').innerText,
+    document.getElementById('summary-questions').innerText,
+    document.getElementById('summary-next-steps').innerText
+  ].join('\n\n');
+  navigator.clipboard.writeText(text).then(() => alert('已复制到剪贴板'));
+}
+
+function exportSummaryPDF() {
+  window.print();
+}
+
+function getTracker() {
+  return JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]');
+}
+
+function saveTrackerEntry() {
+  const entry = {
+    date: document.getElementById('track-date').value || new Date().toISOString().slice(0, 10),
+    pain: Number(document.getElementById('track-pain').value || 0),
+    appetite: Number(document.getElementById('track-appetite').value || 3),
+    sleep: Number(document.getElementById('track-sleep').value || 3),
+    weight: document.getElementById('track-weight').value || '',
+    note: document.getElementById('track-note').value.trim()
+  };
+  const list = getTracker().filter((i) => i.date !== entry.date);
+  list.push(entry);
+  list.sort((a, b) => b.date.localeCompare(a.date));
+  localStorage.setItem(TRACKER_KEY, JSON.stringify(list.slice(0, 90)));
+  renderTrackerSummary();
+  alert('已保存今日打卡。');
+}
+
+function renderTrackerSummary() {
+  const list = getTracker().slice(0, 7).sort((a, b) => a.date.localeCompare(b.date));
+  const output = document.getElementById('tracker-output');
+  if (!list.length) {
+    output.textContent = '暂无数据，先保存一条打卡记录。';
+    return;
+  }
+  const avgPain = (list.reduce((s, i) => s + i.pain, 0) / list.length).toFixed(1);
+  const avgSleep = (list.reduce((s, i) => s + i.sleep, 0) / list.length).toFixed(1);
+  const avgAppetite = (list.reduce((s, i) => s + i.appetite, 0) / list.length).toFixed(1);
+  output.textContent = `最近${list.length}天平均：疼痛 ${avgPain}/10，睡眠 ${avgSleep}/5，食欲 ${avgAppetite}/5。\n` +
+    list.map((i) => `${i.date}｜疼痛${i.pain} 食欲${i.appetite} 睡眠${i.sleep}${i.weight ? ` 体重${i.weight}kg` : ''}`).join('\n');
+  document.getElementById('result-tracker').classList.add('show');
+}
+
+async function generateWeeklySummary() {
+  const last7 = getTracker().slice(0, 7);
+  if (!last7.length) return alert('请先保存至少1条打卡。');
+  const prompt = `你是康复管理助手。根据以下7天症状打卡，输出：
+一、趋势判断（疼痛/睡眠/食欲）
+二、本周需注意事项
+三、下周可执行目标（3条）
+打卡数据：${JSON.stringify(last7)}`;
+  try {
+    const data = await callAPI(prompt, 'symptom_weekly_summary');
+    document.getElementById('tracker-output').textContent = data.text || '暂无总结';
+    document.getElementById('result-tracker').classList.add('show');
+  } catch (e) {
+    alert('生成失败：' + e.message);
+  }
+}
+
+function initConsentGate() {
+  const modal = document.getElementById('consent-modal');
+  const agreed = localStorage.getItem(CONSENT_KEY) === 'true';
+  if (!agreed) modal.classList.add('show');
+  document.querySelectorAll('.consent-required').forEach((btn) => btn.disabled = !agreed);
+  document.getElementById('consent-confirm').addEventListener('click', () => {
+    const t = document.getElementById('consent-terms').checked;
+    const r = document.getElementById('consent-risk').checked;
+    if (!t || !r) return alert('请先勾选两项确认。');
+    localStorage.setItem(CONSENT_KEY, 'true');
+    modal.classList.remove('show');
+    document.querySelectorAll('.consent-required').forEach((btn) => btn.disabled = false);
+  });
+}
+
+function initQuickSymptoms() {
+  document.querySelectorAll('.chip-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      const selected = [...document.querySelectorAll('.chip-btn.active')].map((x) => x.dataset.symptom);
+      document.getElementById('symptoms').value = selected.join('、');
+    });
+  });
+}
+
+function initHeroActions() {
+  document.getElementById('btn-view-sample').addEventListener('click', () => {
+    alert('示例：\n报告整理将输出【关键信息卡片、缺失信息、门诊提问、72小时行动建议】。');
+  });
+  document.getElementById('btn-copy-summary').addEventListener('click', copySummary);
+  document.getElementById('btn-export-pdf').addEventListener('click', exportSummaryPDF);
+  document.getElementById('btn-save-record').addEventListener('click', () => {
+    saveRecord('staging_manual', { text: document.getElementById('summary-structured').innerText });
+    alert('已保存。');
+  });
+  document.getElementById('track-date').value = new Date().toISOString().slice(0, 10);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  initConsentGate();
+  initQuickSymptoms();
+  initHeroActions();
+  renderTrackerSummary();
+});
 </script>
 <script>
 /* ✅ 资料清单：按肿瘤类型给用户提示（前端本地渲染，不影响后端） */
