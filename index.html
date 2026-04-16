@@ -150,7 +150,9 @@
 .consent-card{max-width:560px;background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:24px}
 .consent-card h3{margin-bottom:10px}
 .consent-card p{color:var(--text-muted);margin-bottom:12px}
+.consent-card .muted{font-size:12px;opacity:.85}
 .consent-card label{display:block;margin-bottom:8px;font-size:14px;color:var(--text-muted)}
+.consent-card a{color:var(--accent2)}
 .checklist .check-item{display:flex;gap:8px;align-items:flex-start}
 </style>
 </head>
@@ -258,9 +260,9 @@
         <div class="result-section"><h4>四、72小时行动建议</h4><div class="result-content" id="summary-next-steps"></div></div>
         <div class="result-actions">
           <button class="btn-ghost" id="btn-copy-summary" type="button">复制结构化摘要</button>
-<button class="btn-ghost" id="btn-export-pdf" type="button">导出PDF</button>
-<button class="btn-ghost" id="btn-export-json" type="button">导出JSON</button>
-<button class="btn-ghost" id="btn-save-record" type="button">保存到我的记录</button>
+          <button class="btn-ghost" id="btn-export-pdf" type="button">导出PDF</button>
+          <button class="btn-ghost" id="btn-export-json" type="button">导出JSON</button>
+          <button class="btn-ghost" id="btn-save-record" type="button">保存到我的记录</button>
         </div>
         <p class="urgent-warning">若出现持续高热、剧烈腹痛、明显出血、呼吸困难等情况，请立即线下就医。</p>
       </div>
@@ -304,7 +306,7 @@
         <div class="result-section"><h4>本周计划</h4><div class="result-content" id="nutrition-week"></div></div>
         <div class="result-section"><h4>复诊前准备</h4><div class="result-content" id="nutrition-followup"></div></div>
         <div class="result-actions">
-          <button class="btn-ghost" type="button" onclick="saveRecord('nutrition')">保存方案</button>
+          <button class="btn-ghost" type="button" id="btn-save-nutrition">保存方案</button>
           <button class="btn-ghost" type="button" id="btn-export-nutrition-json">导出JSON</button>
         </div>
         <p class="urgent-warning">本结果为AI辅助建议，不能替代医生面诊与处方。</p>
@@ -350,7 +352,7 @@
     <h3>使用前确认</h3>
     <p class="muted" id="consent-version-note">同意版本：v1.1</p>
     <p>本工具仅用于健康教育与就医沟通准备，不提供诊断、处方与急诊建议。</p>
-    <label><input type="checkbox" id="consent-terms"> 我已阅读并同意《用户协议》《隐私政策》</label>
+    <label><input type="checkbox" id="consent-terms"> 我已阅读并同意 <a href="/terms.html" target="_blank" rel="noopener noreferrer">《用户协议》</a> 与 <a href="/privacy.html" target="_blank" rel="noopener noreferrer">《隐私政策》</a></label>
     <label><input type="checkbox" id="consent-risk"> 我理解 AI 可能出错，紧急情况将立即线下就医</label>
     <button class="btn-primary" id="consent-confirm" type="button">同意并继续</button>
   </div>
@@ -362,18 +364,20 @@
 
 <footer>
   <div class="logo"><span>妍</span>护 · GynCare</div>
-  <p>以关怀为本 · 以科学为翼 · 陪伴每一位勇敢的她</p>
+  <p>以关怀为本 · 以科学为翼 · 陪伴每一位勇敢的她 · <a href="/terms.html" target="_blank" rel="noopener noreferrer">用户协议</a> · <a href="/privacy.html" target="_blank" rel="noopener noreferrer">隐私政策</a></p>
 </footer>
 
 <script>
 // ⚙️ 部署后，这里会自动用相对路径调用同域后端
 const API_URL = '/api/chat';
 const CONSENT_KEY = 'gyncare_consent_v1';
+const CONSENT_META_KEY = 'gyncare_consent_meta_v1';
+const REQUIRED_CONSENT_VERSION = 'v1.1';
 const RECORD_KEY = 'gyncare_records_v1';
 const TRACKER_KEY = 'gyncare_tracker_v1';
-const CONSENT_META_KEY = 'gyncare_consent_meta_v1';
-const REQUIRED_CONSENT_VERSION = 'v1.1';  
-  
+let lastStagingPayload = null;
+let lastNutritionPayload = null;
+
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b, i) => {
     b.classList.toggle('active', (tab === 'staging' && i === 0) || (tab === 'nutrition' && i === 1));
@@ -402,23 +406,35 @@ function parseSections(text) {
   const lines = text.split('\n');
   let current = 'a';
   lines.forEach((line) => {
-    if (/二[、.]/.test(line)) current = 'b';
-    if (/三[、.]/.test(line)) current = 'c';
-    if (/四[、.]/.test(line)) current = 'd';
+    const trimmed = line.trim();
+    if (/^二[、.]/.test(trimmed)) { current = 'b'; return; }
+    if (/^三[、.]/.test(trimmed)) { current = 'c'; return; }
+    if (/^四[、.]/.test(trimmed)) { current = 'd'; return; }
     sections[current] += line + '\n';
   });
   return sections;
 }
 
+function escapeHTML(input) {
+  return (input || '').replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[ch]));
+}
+
 function toChecklistHTML(text) {
   return text.split('\n').filter(Boolean).map((line) => {
     const plain = line.replace(/^[-*]\s*/, '').trim();
-    return `<label class="check-item"><input type="checkbox"> <span>${plain}</span></label>`;
+    return `<label class="check-item"><input type="checkbox"> <span>${escapeHTML(plain)}</span></label>`;
   }).join('');
 }
 
 function formatText(text) {
-  return (text || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  const escaped = escapeHTML(text || '');
+  return escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 }
 
 async function analyzeStaging() {
@@ -458,11 +474,11 @@ async function analyzeStaging() {
     document.getElementById('summary-questions').innerHTML = toChecklistHTML(sections.c || '暂无');
     document.getElementById('summary-next-steps').innerHTML = formatText(sections.d);
     resultBox.classList.add('show');
-    saveRecord('staging', {
+    lastStagingPayload = {
       type, goal, concerns, firstTime,
       output: { ...sections },
       generated_at: data.generated_at, trace_id: data.trace_id
-    });
+    };
   } catch(e) {
     document.getElementById('summary-structured').textContent = '错误：' + e.message;
     resultBox.classList.add('show');
@@ -507,7 +523,7 @@ async function analyzeNutrition() {
     document.getElementById('nutrition-week').innerHTML = formatText(sections.b);
     document.getElementById('nutrition-followup').innerHTML = formatText(sections.c + sections.d);
     resultBox.classList.add('show');
-    saveRecord('nutrition', { phase, symptoms, output: sections, generated_at: data.generated_at, trace_id: data.trace_id });
+    lastNutritionPayload = { phase, symptoms, output: sections, generated_at: data.generated_at, trace_id: data.trace_id };
   } catch(e) {
     document.getElementById('nutrition-today').textContent = '错误：' + e.message;
     resultBox.classList.add('show');
@@ -516,8 +532,19 @@ async function analyzeNutrition() {
 }
 
 function saveRecord(type, payload) {
+  if (!payload || typeof payload !== 'object') {
+    alert('当前没有可保存的结果，请先生成方案。');
+    return;
+  }
   const list = JSON.parse(localStorage.getItem(RECORD_KEY) || '[]');
-  list.unshift({ id: crypto.randomUUID(), type, payload, created_at: new Date().toISOString() });
+  const consentMeta = JSON.parse(localStorage.getItem(CONSENT_META_KEY) || '{}');
+  list.unshift({
+    id: crypto.randomUUID(),
+    type,
+    payload,
+    consent_version: consentMeta.version || 'v1.0',
+    created_at: new Date().toISOString()
+  });
   localStorage.setItem(RECORD_KEY, JSON.stringify(list.slice(0, 100)));
 }
 
@@ -631,37 +658,29 @@ function initConsentGate() {
   const modal = document.getElementById('consent-modal');
   const storedAgree = localStorage.getItem(CONSENT_KEY) === 'true';
   const consentMeta = JSON.parse(localStorage.getItem(CONSENT_META_KEY) || '{}');
-
   const versionMatched = consentMeta.version === REQUIRED_CONSENT_VERSION;
   const agreed = storedAgree && versionMatched;
-
   if (!agreed) {
     localStorage.removeItem(CONSENT_KEY);
     modal.classList.add('show');
   }
-
   const versionNote = document.getElementById('consent-version-note');
   if (versionNote) versionNote.textContent = `同意版本：${REQUIRED_CONSENT_VERSION}`;
-
-  document.querySelectorAll('.consent-required').forEach((btn) => {
-    btn.disabled = !agreed;
-  });
-
+  document.querySelectorAll('.consent-required').forEach((btn) => btn.disabled = !agreed);
+  if (agreed && consentMeta.accepted_at) {
+    console.info(`Consent accepted at ${consentMeta.accepted_at} (${consentMeta.version || REQUIRED_CONSENT_VERSION})`);
+  }
   document.getElementById('consent-confirm').addEventListener('click', () => {
     const t = document.getElementById('consent-terms').checked;
     const r = document.getElementById('consent-risk').checked;
     if (!t || !r) return alert('请先勾选两项确认。');
-
     localStorage.setItem(CONSENT_KEY, 'true');
     localStorage.setItem(CONSENT_META_KEY, JSON.stringify({
       version: REQUIRED_CONSENT_VERSION,
       accepted_at: new Date().toISOString()
     }));
-
     modal.classList.remove('show');
-    document.querySelectorAll('.consent-required').forEach((btn) => {
-      btn.disabled = false;
-    });
+    document.querySelectorAll('.consent-required').forEach((btn) => btn.disabled = false);
   });
 }
 
@@ -683,9 +702,15 @@ function initHeroActions() {
   document.getElementById('btn-export-pdf').addEventListener('click', exportSummaryPDF);
   document.getElementById('btn-export-json').addEventListener('click', () => exportAuditJSON('report_summary', lastStagingPayload));
   document.getElementById('btn-save-record').addEventListener('click', () => {
-    saveRecord('staging_manual', { text: document.getElementById('summary-structured').innerText });
-    alert('已保存。');
+    const payload = lastStagingPayload || { text: document.getElementById('summary-structured').innerText };
+    saveRecord('staging', payload);
+    alert('报告整理已保存。');
   });
+  document.getElementById('btn-save-nutrition').addEventListener('click', () => {
+    saveRecord('nutrition', lastNutritionPayload);
+    if (lastNutritionPayload) alert('康复方案已保存。');
+  });
+  document.getElementById('btn-export-nutrition-json').addEventListener('click', () => exportAuditJSON('rehab_plan', lastNutritionPayload));
   document.getElementById('track-date').value = new Date().toISOString().slice(0, 10);
 }
 
@@ -786,17 +811,6 @@ document.addEventListener('DOMContentLoaded', function () {
   select.addEventListener("change", renderHints);
   renderHints();
 });
-  <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const exportNutritionBtn = document.getElementById('btn-export-nutrition-json');
-  if (exportNutritionBtn && typeof exportAuditJSON === 'function') {
-    exportNutritionBtn.addEventListener('click', function () {
-      const payload = window.lastNutritionPayload || null;
-      exportAuditJSON('rehab_plan', payload);
-    });
-  }
-});
-</script>
 </script>
 </body>
 </html>
